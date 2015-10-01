@@ -3,8 +3,9 @@
     <head>
         <meta charset="utf-8">
         <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
-        <title>Bar chart 2</title>
+        <title>Bar chart 3</title>
         <style>
+
             .chart rect {
                 fill: steelblue;
             }
@@ -12,7 +13,7 @@
             .chart text {
                 fill: white;
                 font: 10px sans-serif;
-                text-anchor: end;
+                text-anchor: middle;
             }
         </style>
     </head>
@@ -20,32 +21,34 @@
         <svg class="chart"></svg>
         <script type="text/javascript"> 
             
-            var width = 420, barHeight = 20;
+            var width = 960, height = 500;
 
-            var x = d3.scale.linear()
-                .range([0, width]);
+            var y = d3.scale.linear()
+                .range([height, 0]);
             
             var chart = d3.select(".chart")
-                .attr("width", width);
-
+                .attr("width", width)
+                .attr("height", height);
+                
             d3.csv("data.csv", type, function(error, data) {
-                x.domain([0, d3.max(data, function(d) { return d.value;})]);
-            
-                chart.attr("height", barHeight * data.length);
+                y.domain([0, d3.max(data, function(d) { return d.value;})]);
+                
+                var barWidth = width / data.length;
                 
                 var bar = chart.selectAll("g")
                     .data(data)
                   .enter().append("g")
-                    .attr("transform", function(d,i) { return  "translate(0," + i * barHeight + ")";});
+                    .attr("transform", function(d,i) { return  "translate(" + i * barWidth + ",0)";});
 
                 bar.append("rect")
-                    .attr("width", function(d) {return x(d.value);})
-                    .attr("height", barHeight - 1);
+                    .attr("y", function(d) {return y(d.value);})
+                    .attr("width", barWidth - 1)
+                    .attr("height", function(d) {return height - y(d.value);});
 
                 bar.append("text")
-                    .attr("x", function(d) { return x(d.value) - 3; })
-                    .attr("y", barHeight/2)
-                    .attr("dy", ".35em")
+                    .attr("x", barWidth / 2)
+                    .attr("y", function (d) { return y(d.value) + 3;})
+                    .attr("dy", ".75em")
                     .text(function(d) {return d.value; });
             });
 
